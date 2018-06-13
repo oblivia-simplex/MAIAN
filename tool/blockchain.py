@@ -1,4 +1,3 @@
-from __future__ import print_function
 from web3 import Web3
 import subprocess
 import signal
@@ -6,7 +5,7 @@ import time
 import sys
 import os
 from values import MyGlobals
-
+from providers import rpc_provider
 
 def start_private_chain(chain, etherbase, debug=False):
 
@@ -42,7 +41,7 @@ def start_private_chain(chain, etherbase, debug=False):
                                './blockchains/' + chain + '/'])
         pr.wait()
 
-    if Web3(KeepAliveRPCProvider(host='127.0.0.1',
+    if Web3(rpc_provider(host='127.0.0.1',
                                  port=MyGlobals.port_number)).isConnected():
         print(
             '\033[91m[-] Some blockchain is active, killing it... \033[0m',
@@ -50,7 +49,7 @@ def start_private_chain(chain, etherbase, debug=False):
         kill_active_blockchain()
         if not(
                 Web3(
-                    KeepAliveRPCProvider(
+                    rpc_provider(
                 host='127.0.0.1',
                 port=MyGlobals.port_number)).isConnected()):
             print('\033[92m Killed \033[0m')
@@ -93,7 +92,7 @@ def start_private_chain(chain, etherbase, debug=False):
                                stderr=devnull)
 
     global web3
-    MyGlobals.web3 = Web3(KeepAliveRPCProvider(
+    MyGlobals.web3 = Web3(rpc_provider(
         host='127.0.0.1', port=MyGlobals.port_number))
     while(not MyGlobals.web3.isConnected()):
         print('', end='.')

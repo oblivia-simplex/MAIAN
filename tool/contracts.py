@@ -1,5 +1,4 @@
-from __future__ import print_function
-from web3 import Web3, KeepAliveRPCProvider, IPCProvider
+from web3 import Web3
 import os.path
 import json
 import sched
@@ -9,11 +8,12 @@ import glob
 import sys
 import json
 import rlp
-from rlp.utils import decode_hex, encode_hex, ascii_chr, str_to_bytes
+from util import decode_hex, encode_hex
 from subprocess import Popen, PIPE, STDOUT
 from values import MyGlobals
 from blockchain import *
 
+from providers import rpc_provider
 
 def compile_contract(filename):
 
