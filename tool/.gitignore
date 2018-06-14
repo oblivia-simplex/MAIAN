@@ -1,4 +1,7 @@
 out/
+blockchains/
+tmp/
+__pycache__
 *~
 \#*
 *.swp
