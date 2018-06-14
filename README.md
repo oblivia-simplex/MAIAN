@@ -64,3 +64,5 @@ To help keep this and other future tools free and up to date, consider donating 
 
 Ported the code to Python3, and fixed numerous dependency bugs, where the
 interface of the functions used by MAIAN had changed. 
+
+-- oblivia simplex
