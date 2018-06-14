@@ -162,7 +162,7 @@ def check_one_contract_on_ether_leak(
             adversary_ether_before = MyGlobals.web3.eth.getBalance(
                 '0x' + MyGlobals.adversary_account)
 
-            weiused = execute_transactions(txs)
+            weiused, _ = execute_transactions(txs)
 
             difference_in_wei = MyGlobals.web3.eth.getBalance(
                 '0x' + MyGlobals.adversary_account) + weiused - adversary_ether_before

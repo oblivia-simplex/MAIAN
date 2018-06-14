@@ -217,7 +217,7 @@ def execute_one_block(
                                 read_from_blockchain)
 
                     except Exception as e:
-                        print("Exception: " + str(e))
+                        print("[SHAT THE BED] Exception: " + str(e))
 
                     MyGlobals.s.pop()
 

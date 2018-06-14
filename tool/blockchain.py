@@ -139,6 +139,7 @@ def execute_transactions(txs):
 
     count = 0
     weiused = 0
+    success = True
     for tx in txs:
         MyGlobals.web3.personal.unlockAccount(tx['from'], '1', 15000)
         try:
@@ -157,7 +158,8 @@ def execute_transactions(txs):
 
         except Exception as e:
             print("Exception: " + str(e))
+            success = False
 
         count += 1
 
-    return weiused
+    return weiused, success

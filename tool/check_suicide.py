@@ -4,6 +4,8 @@ from values import get_params, set_params, initialize_params, print_params, MyGl
 from execute_block import *
 from blockchain import *
 
+from util import chksum_fmt
+
 
 def ether_suicide(op, stack, trace, debug):
 
@@ -124,7 +126,7 @@ def check_one_contract_on_suicide(
             for n in range(MyGlobals.no_function_calls):
 
                 tx = {}
-                tx['from'] = '0x' + MyGlobals.adversary_account
+                tx['from'] = chksum_fmt('0x' + MyGlobals.adversary_account)
                 tx['to'] = contract_address
                 tx['value'] = MyGlobals.function_calls[n + 1]['value']
                 tx['data'] = '0x' + MyGlobals.function_calls[n + 1]['input']

@@ -13,7 +13,7 @@ import time
 from datetime import datetime
 from z3 import *
 from misc import *
-
+from util import keccak_256
 
 def is_fixed(s):
     return s['type'] == 'constant' and is_bv_value(
@@ -141,7 +141,7 @@ def binary(o1, o2, step, op='NONE'):
     elif op == 'DIV':
         z3 = UDiv(z1, z2)
     elif op == 'SDIV':
-        z3 = z1 / z2
+        z3 = z1 // z2
     elif op == 'MOD':
         z3 = URem(z1, z2)
     elif op == 'SMOD':
@@ -280,7 +280,7 @@ def execute(code, stack, pos, storage, mmemory, data,
 
                 val = ''
                 all_good = True
-                for i in range(exact_offset / 32):
+                for i in range(exact_offset // 32):
                     if (exact_address +
                         i *
                         32) not in mmemory or not is_fixed(mmemory[exact_address +
@@ -432,7 +432,7 @@ def execute(code, stack, pos, storage, mmemory, data,
             value = get_value(args[6])
 
             if value < 10000:
-                for i in range(value / 32):
+                for i in range(value // 32):
                     mmemory[addr + 32 *
                             i] = {'type': 'undefined', 'step': step}
 
@@ -467,7 +467,7 @@ def execute(code, stack, pos, storage, mmemory, data,
                     length)
             return pos, True
 
-        for i in range(length / 32):
+        for i in range(length // 32):
             data[datapos +
                  32 *
                  i] = BitVec('input' +
@@ -562,16 +562,16 @@ def execute(code, stack, pos, storage, mmemory, data,
         ea = get_value(addr)
         ev = get_value(value) % 256
 
-        if (ea / 32) * 32 not in mmemory:
-            mmemory[(ea / 32) * 32] = {'type': 'constant',
+        if (ea // 32) * 32 not in mmemory:
+            mmemory[(ea // 32) * 32] = {'type': 'constant',
                                        'step': step,
                                        'z3': BitVecVal(ev << (31 - (ea % 32)),
                                                        256)}
-        elif is_fixed(mmemory[(ea / 32) * 32]['z3']):
-            v = get_value(mmemory[(ea / 32) * 32]['z3'])
+        elif is_fixed(mmemory[(ea // 32) * 32]['z3']):
+            v = get_value(mmemory[(ea // 32) * 32]['z3'])
             v = (v & (~BitVecVal(0xff, 256) << (31 - (ea % 32)))
                  ) ^ (ev << (31 - (ea % 32)))
-            mmemory[(ea / 32) * 32]['z3'] = v
+            mmemory[(ea // 32) * 32]['z3'] = v
 
     elif op == 'SLOAD':
 

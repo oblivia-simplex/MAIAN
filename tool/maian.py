@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 '''
 Copyright (c) 2018, Ivica Nikolic <cube444@gmail.com>
 
@@ -24,7 +26,8 @@ from web3 import Web3
 import argparse
 import subprocess
 import sys
-
+import eth_utils
+from pprint import pprint, pformat
 
 found_depend = False
 try:
@@ -117,23 +120,37 @@ def main(args):
 
     if args.soliditycode or args.bytecode_source:
 
+        # Ensure that these are both initialized on each
+        # code path.
+        contract_abi_path = None
+        if args.bytecode_source:
+            contract_code_path = args.bytecode_source
+
         print('\n' + '=' * 100)
 
         read_from_blockchain = True
 
         # First compile the contract and produce bytecode/abi
         fhashes = {}
+
         if args.soliditycode:
-            compile_contract(args.soliditycode[0])
-            contract_code_path = 'out/' + args.soliditycode[1] + '.bin'
+            src_file, contract_name = args.soliditycode[0:2]
+            compile_contract(src_file)
+            # initializing paths
+            contract_code_path, contract_abi_path = (
+                derive_solc_out_path('out',
+                                     src_file,
+                                     contract_name))
+            # there's a bug here, the name isn't being constructed properly.
+            print("contract_code_path>",contract_code_path)
             if not os.path.isfile(contract_code_path):
                 print('\033[91m[-] Contract %s does NOT exist\033[0m' %
-                      args.soliditycode[1])
+                      contract_code_path)
                 return
 
             # Get the contract function hashes (used later if the contract has
             # vulnerability)
-            fhashes = get_function_hashes(args.soliditycode[1])
+            fhashes = get_function_hashes(contract_abi_path)
 
         # Connect (start) the private blockchain
         start_private_chain('emptychain', MyGlobals.etherbase_account)
@@ -145,19 +162,29 @@ def main(args):
         if 1 == MyGlobals.checktype:
             supposed_contract_address = predict_contract_address(
                 MyGlobals.etherbase_account)
+            #to_addr = Web3.toChecksumAddress(
+            #    eth_utils.encode_hex(supposed_contract_address))
+            from_addr = Web3.toChecksumAddress(MyGlobals.sendingether_account)
+            to_addr = supposed_contract_address
             print('\033[1m[ ] Sending Ether to contract %s  \033[0m' %
-                  supposed_contract_address, end='')
-            execute_transactions([{'from': '0x' + MyGlobals.sendingether_account,
-                                   'to': supposed_contract_address, 'value': MyGlobals.send_initial_wei}])
-            print('\033[92m Sent! \033[0m')
+                  to_addr, end='')
+            _data = [{'from': from_addr,
+                      'to': to_addr,
+                      'value': MyGlobals.send_initial_wei}]
+            print("\nTransaction data:\n", pformat(_data))
+            wei_used, success = execute_transactions(_data)
+            if success:
+                print('\033[92m Sent! (used {} wei)\033[0m'.format(wei_used))
+            else:
+                print('\033[91m Failed to send... \033[0m')
 
-        # Deploy the contract
-        if args.soliditycode:
-            contract_address = deploy_contract(
-                args.soliditycode[1], MyGlobals.etherbase_account)
-        else:
-            contract_address = deploy_contract(
-                args.bytecode_source, MyGlobals.etherbase_account, True)
+        # Deploy the contract. If we're using raw bytecode, then
+        # abi_path will be None, which will trigger the expected
+        # behaviour in deploy_contract.
+        contract_address = deploy_contract(
+            etherbase=MyGlobals.etherbase_account,
+            bin_path=contract_code_path,
+            abi_path=contract_abi_path)
 
         if contract_address is None:
             print('\033[91m[-] Cannot deploy the contract \033[0m')
@@ -176,6 +203,8 @@ def main(args):
         code = MyGlobals.web3.eth.getCode(contract_address)
         if code[0:2] == '0x':
             code = code[2:]
+        else:
+            code = eth_utils.encode_hex(code)[2:]
 
         if 0 == MyGlobals.checktype:
             ret = check_suicide.check_one_contract_on_suicide(
