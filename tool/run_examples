@@ -1,19 +1,21 @@
-#! /usr/bin/env bash
+#! /usr/bin/env python3
 
-idx=0
-choice=$1
+import os
 
-function inc () { idx=$(( $idx + 1 )); }
-function sel () { 
-  inc
-  [ -z "$choice" ] || (( $idx == $choice ))
-}
+commands = [
+  'python3 maian.py -s example_contracts/example_suicidal.sol KAI -c 0',
+  'python3 maian.py -b example_contracts/example_suicidal.bytecode -c 0',
+  'python3 maian.py -bs example_contracts/example_suicidal.bytecode_source -c 0',
+  'python3 maian.py -s example_contracts/example_prodigal.sol Adoption -c 1',
+  'python3 maian.py -b example_contracts/example_prodigal.bytecode -c 1',
+  'python3 maian.py -bs example_contracts/example_prodigal.bytecode_source -c 1',
+  'python3 maian.py -b example_contracts/example_greedy.bytecode -c 2',
+  'python3 maian.py -s example_contracts/ParityWalletLibrary.sol WalletLibrary -c 0'
+]
+for cmd in commands:
+  m = len(cmd) + len("Running: ")
+  print("*"*m)
+  print("Running:",cmd)
+  print("*"*m)
+  os.system(cmd)
 
-sel && python3 maian.py -s example_contracts/example_suicidal.sol KAI -c 0
-sel && python3 maian.py -b example_contracts/example_suicidal.bytecode -c 0
-sel && python3 maian.py -bs example_contracts/example_suicidal.bytecode_source -c 0
-sel && python3 maian.py -s example_contracts/example_prodigal.sol Adoption -c 1
-sel && python3 maian.py -b example_contracts/example_prodigal.bytecode -c 1
-sel && python3 maian.py -bs example_contracts/example_prodigal.bytecode_source -c 1
-sel && python3 maian.py -b example_contracts/example_greedy.bytecode -c 2
-sel && python2 maian.py -s example_contracts/ParityWalletLibrary.sol WalletLibrary -c 0

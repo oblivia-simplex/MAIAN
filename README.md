@@ -59,3 +59,8 @@ Maian is released under the [MIT License](https://opensource.org/licenses/MIT), 
 
 To help keep this and other future tools free and up to date, consider donating Ether to our account: 0xfd03b29b5c20f878836a3b35718351adf24f4a06
  
+
+## Update
+
+Ported the code to Python3, and fixed numerous dependency bugs, where the
+interface of the functions used by MAIAN had changed. 

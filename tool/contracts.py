@@ -14,6 +14,7 @@ from values import MyGlobals
 from blockchain import *
 
 from providers import rpc_provider
+from util import chksum_fmt
 
 def derive_solc_out_path(out_dir, source_path, contract_name=None):
     """
@@ -114,7 +115,7 @@ def deploy_contract(etherbase,
         transaction_creation_hash = MyGlobals.web3.eth.sendTransaction(
             {'from': etherbase, 'data': ('0x' if byt[0:2] != '0x' else '') + byt, 'gas': 6000000})
     except Exception as e:
-        print("Exception: " + str(e))
+        print("Exception thrown by transaction_creation_hash: " + str(e))
         return None
 
     global s
@@ -195,11 +196,20 @@ def normalize_address(x, allow_blank=False):
 
 def predict_contract_address(accountAddress):
     accountAddress = Web3.toChecksumAddress(accountAddress)
-    nonce = int(MyGlobals.web3.eth.getTransactionCount(accountAddress))
+    _nonce = MyGlobals.web3.eth.getTransactionCount(accountAddress)
+    print('NONCE:', repr(_nonce))
+    if type(_nonce) in (str,bytes) and _nonce.startswith('0x'):
+        print('-- converting NONCE to int')
+        nonce = int(_nonce[2:], base=16)
+    else:
+        nonce = int(_nonce) # ?
     adr = Web3.sha3(rlp.encode(
-        [normalize_address(accountAddress), nonce]))[-40:]
+        [normalize_address(accountAddress), nonce]))[-20:] # raw, take last 20
     print("\n** in predict_contract_address: adr of {} bytes = {}"
           .format(len(adr), adr))
     adr = encode_hex(adr)
     print("** hex encoded:",adr)
-    return '0x'+adr
+    if not adr.startswith('0x'):
+        adr = '0x'+adr
+    adr = chksum_fmt(adr)
+    return adr

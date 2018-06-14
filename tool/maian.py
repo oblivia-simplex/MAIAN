@@ -126,7 +126,7 @@ def main(args):
         if args.bytecode_source:
             contract_code_path = args.bytecode_source
 
-        print('\n' + '=' * 100)
+        print('\n' + '=' * 80)
 
         read_from_blockchain = True
 
@@ -166,8 +166,9 @@ def main(args):
             #    eth_utils.encode_hex(supposed_contract_address))
             from_addr = Web3.toChecksumAddress(MyGlobals.sendingether_account)
             to_addr = supposed_contract_address
-            print('\033[1m[ ] Sending Ether to contract %s  \033[0m' %
-                  to_addr, end='')
+            print('\033[1m[ ] Sending Ether to contract {}  \033[0m'
+                  .format(to_addr),
+                  end='')
             _data = [{'from': from_addr,
                       'to': to_addr,
                       'value': MyGlobals.send_initial_wei}]
@@ -230,7 +231,7 @@ def main(args):
 
     elif args.bytecode:
 
-        print('\n' + '=' * 100)
+        print('\n' + '=' * 80)
 
         read_from_blockchain = False
         filepath_code = args.bytecode

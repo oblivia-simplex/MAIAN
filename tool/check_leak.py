@@ -4,6 +4,8 @@ from values import get_params, set_params, initialize_params, print_params, MyGl
 from execute_block import *
 from blockchain import *
 
+from util import chksum_fmt
+
 
 def ether_leak(op, stack, trace, debug):
 
@@ -152,7 +154,7 @@ def check_one_contract_on_ether_leak(
             for n in range(MyGlobals.no_function_calls):
 
                 tx = {}
-                tx['from'] = '0x' + MyGlobals.adversary_account
+                tx['from'] = chksum_fmt('0x' + MyGlobals.adversary_account)
                 tx['to'] = contract_address
                 tx['value'] = MyGlobals.function_calls[n + 1]['value']
                 tx['data'] = '0x' + MyGlobals.function_calls[n + 1]['input']
@@ -160,12 +162,13 @@ def check_one_contract_on_ether_leak(
                 txs.append(tx)
 
             adversary_ether_before = MyGlobals.web3.eth.getBalance(
-                '0x' + MyGlobals.adversary_account)
+                chksum_fmt('0x' + MyGlobals.adversary_account))
 
             weiused, _ = execute_transactions(txs)
 
             difference_in_wei = MyGlobals.web3.eth.getBalance(
-                '0x' + MyGlobals.adversary_account) + weiused - adversary_ether_before
+                chksum_fmt('0x' + MyGlobals.adversary_account)) \
+                + weiused - adversary_ether_before
 
             if difference_in_wei > 0:
                 print(

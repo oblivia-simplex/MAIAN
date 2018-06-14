@@ -92,8 +92,11 @@ def start_private_chain(chain, etherbase, debug=False):
                                stderr=devnull)
 
     global web3
-    MyGlobals.web3 = Web3(rpc_provider(
-        host='127.0.0.1', port=MyGlobals.port_number))
+    MyGlobals.web3 = Web3(
+        rpc_provider(
+            host='127.0.0.1',
+            port=MyGlobals.port_number),
+        middlewares=None) # sets default middlewares. NB: potential nuisance
     while(not MyGlobals.web3.isConnected()):
         print('', end='.')
         if MyGlobals.exec_as_script:
@@ -145,8 +148,8 @@ def execute_transactions(txs):
         try:
             hash = MyGlobals.web3.eth.sendTransaction(tx)
 
-            while MyGlobals.web3.eth.getTransaction(
-                    hash)['blockNumber'] is None:
+            while not MyGlobals.web3.eth.getTransaction(
+                    hash)['blockNumber'] :
                 print('.', end='')
                 if MyGlobals.exec_as_script:
                     sys.stdout.flush()
